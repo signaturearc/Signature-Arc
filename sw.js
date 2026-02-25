@@ -1,4 +1,4 @@
-const CACHE_NAME = "signature-arc-v3";
+const CACHE_NAME = "signature-arc-v4";
 
 const STATIC_ASSETS = [
   "/",
@@ -65,3 +65,4 @@ self.addEventListener("fetch", event => {
       })
   );
 });
+
