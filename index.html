@@ -828,6 +828,13 @@
             color: #374151;
             font-size: 17px;
         }
+
+        #installContainer button {
+            background: linear-gradient(135deg, #C9A14A, #EAC15A);
+            border: none;
+            color: #111;
+            font-weight: 600;
+        }
     </style>
 
 </head>
@@ -1622,110 +1629,89 @@
         </div>
     </footer>
 
+    <div id="installContainer"
+        style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:9999;">
+        <button id="installBtn" class="btn btn-warning shadow-lg px-4 py-2 rounded-pill">
+            <i class="fas fa-download me-2"></i> Install Signature Arc App
+        </button>
+    </div>
 
 
+
+    <!-- Bootstrap -->
     <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-
-    <!-- AOS Library -->
+    <!-- AOS -->
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" media="print" onload="this.media='all'">
 
     <script defer src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-    
-
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
 
             /* ================= AOS INIT ================= */
             if (typeof AOS !== "undefined") {
-                AOS.init({ once: true, duration: 900 });
+                AOS.init({
+                    once: true,
+                    duration: 800,
+                    easing: "ease-out-cubic"
+                });
             }
 
-            /* ================= WHATSAPP FUNCTION ================= */
+            /* ================= WHATSAPP ================= */
             window.sendToWhatsApp = function () {
+                const name = document.getElementById("name")?.value.trim() || "";
+                const phone = document.getElementById("phone")?.value.trim() || "";
+                const service = document.getElementById("service")?.value || "";
+                const message = document.getElementById("message")?.value.trim() || "";
 
-                var name = document.getElementById("name")?.value.trim() || "";
-                var phone = document.getElementById("phone")?.value.trim() || "";
-                var service = document.getElementById("service")?.value || "";
-                var message = document.getElementById("message")?.value.trim() || "";
+                const text =
+                    `New Project Enquiry
+Signature Arc Consultancy
 
-                var whatsappNumber = "918103228818";
+Client Name: ${name}
+Mobile: ${phone}
+Service Required: ${service}
+Project Details: ${message}`;
 
-                var text =
-                    "New Project Enquiry\n" +
-                    "Signature Arc Consultancy\n\n" +
-                    "Client Name: " + name + "\n" +
-                    "Mobile: " + phone + "\n" +
-                    "Service Required: " + service + "\n" +
-                    "Project Details: " + message;
-
-                var encodedText = encodeURIComponent(text);
-
-                var whatsappURL =
-                    "https://api.whatsapp.com/send?phone=" +
-                    whatsappNumber +
-                    "&text=" +
-                    encodedText;
-
-                window.open(whatsappURL, "_blank");
+                window.open(
+                    `https://api.whatsapp.com/send?phone=918103228818&text=${encodeURIComponent(text)}`,
+                    "_blank"
+                );
             };
 
-
-            /* ================= SERVICE CARD SHADOW ON SCROLL ================= */
-            const cards = document.querySelectorAll('.service-card');
-
-            if (cards.length > 0) {
-                const observer = new IntersectionObserver(entries => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            entry.target.classList.add('shadow-lg');
-                        }
-                    });
-                }, { threshold: 0.4 });
-
-                cards.forEach(card => observer.observe(card));
-            }
-
-
-            /* ================= COUNTER ANIMATION (SINGLE CLEAN VERSION) ================= */
+            /* ================= COUNTER ================= */
             const counters = document.querySelectorAll('.counter');
 
-            if (counters.length > 0) {
-
-                const runCounter = (counter) => {
-                    const target = +counter.getAttribute('data-target');
-                    let count = 0;
-                    const speed = 120;
-
-                    const update = () => {
-                        const increment = target / speed;
-                        if (count < target) {
-                            count += increment;
-                            counter.innerText = Math.ceil(count);
-                            requestAnimationFrame(update);
-                        } else {
-                            counter.innerText = target;
-                        }
-                    };
-
-                    update();
-                };
-
-                const counterObserver = new IntersectionObserver(entries => {
+            if (counters.length) {
+                const observer = new IntersectionObserver(entries => {
                     entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            runCounter(entry.target);
-                            counterObserver.unobserve(entry.target);
+                        if (!entry.isIntersecting) return;
+
+                        const counter = entry.target;
+                        const target = +counter.dataset.target;
+                        let current = 0;
+                        const step = target / 100;
+
+                        function update() {
+                            current += step;
+                            if (current < target) {
+                                counter.textContent = Math.ceil(current);
+                                requestAnimationFrame(update);
+                            } else {
+                                counter.textContent = target;
+                            }
                         }
+
+                        update();
+                        observer.unobserve(counter);
                     });
                 }, { threshold: 0.5 });
 
-                counters.forEach(counter => counterObserver.observe(counter));
+                counters.forEach(counter => observer.observe(counter));
             }
 
-
-            /* ================= PARTICLES SAFE INIT ================= */
+            /* ================= PARTICLES (Desktop Only) ================= */
             if (
                 typeof particlesJS !== "undefined" &&
                 document.getElementById("particles-js") &&
@@ -1733,7 +1719,7 @@
             ) {
                 particlesJS("particles-js", {
                     particles: {
-                        number: { value: 35 },
+                        number: { value: 25 },
                         color: { value: "#C9A14A" },
                         shape: { type: "circle" },
                         opacity: { value: 0.4 },
@@ -1743,51 +1729,66 @@
                             color: "#C9A14A",
                             opacity: 0.3
                         },
-                        move: {
-                            enable: true,
-                            speed: 1
-                        }
+                        move: { enable: true, speed: 1 }
                     }
                 });
             }
 
         });
-    </script>
 
-    <script>
+        /* ================= INSTALL PROMPT ================= */
         let deferredPrompt;
+        const installContainer = document.getElementById("installContainer");
+        const installBtn = document.getElementById("installBtn");
+
+        // Hide install button if running as installed PWA
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            if (installContainer) installContainer.style.display = "none";
+        }
 
         window.addEventListener("beforeinstallprompt", (e) => {
             e.preventDefault();
             deferredPrompt = e;
 
-            const installBtn = document.createElement("button");
-            installBtn.innerText = "Install App";
-            installBtn.className = "btn btn-warning position-fixed bottom-0 end-0 m-4";
-            document.body.appendChild(installBtn);
-
-            installBtn.addEventListener("click", () => {
-                installBtn.remove();
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then(() => {
-                    deferredPrompt = null;
-                });
-            });
+            if (installContainer) {
+                installContainer.style.display = "block";
+            }
         });
-    </script>
+
+        installBtn?.addEventListener("click", async () => {
+            if (!deferredPrompt) return;
+
+            deferredPrompt.prompt();
+            await deferredPrompt.userChoice;
+            deferredPrompt = null;
+
+            if (installContainer) installContainer.style.display = "none";
+        });
 
 
-    <script>
+        /* ================= SERVICE WORKER ================= */
         if ("serviceWorker" in navigator) {
-            window.addEventListener("load", function () {
-                navigator.serviceWorker.register("/sw.js")
-                    .then(function () {
-                        console.log("Service Worker Registered");
-                    });
+            window.addEventListener("load", async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register("/sw.js");
+                    console.log("Service Worker Registered");
+
+                    // Detect update
+                    registration.onupdatefound = () => {
+                        const newWorker = registration.installing;
+                        newWorker.onstatechange = () => {
+                            if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+                                console.log("New version available. Refresh to update.");
+                            }
+                        };
+                    };
+
+                } catch (error) {
+                    console.error("SW Error:", error);
+                }
             });
         }
     </script>
-
 
 
 </body>
